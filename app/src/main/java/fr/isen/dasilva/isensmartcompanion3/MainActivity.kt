@@ -210,20 +210,22 @@ fun TabBarBadgeView(count: Int? = null) {
 fun MoreView() {
     val context = LocalContext.current
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp),
+    // Utiliser LaunchedEffect pour démarrer l'activité immédiatement
+    LaunchedEffect(Unit) {
+        // Démarre HistoryActivity dès que la composable MoreView est appelée
+        val intent = Intent(context, HistoryActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    // Cette partie du code peut être laissée vide ou personnalisée selon tes besoins
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Options supplémentaires")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            context.startActivity(Intent(context, HistoryActivity::class.java))
-        }) {
-            Text("Voir l'historique")
-        }
     }
 }
+
