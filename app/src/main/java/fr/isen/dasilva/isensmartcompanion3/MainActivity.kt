@@ -36,9 +36,12 @@ import fr.isen.dasilva.isensmartcompanion3.event.EventScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.isen.dasilva.isensmartcompanion3.history.HistoryActivity
 import fr.isen.dasilva.isensmartcompanion3.history.HistoryViewModel
 import fr.isen.dasilva.isensmartcompanion3.history.HistoryViewModelFactory
 import fr.isen.dasilva.isensmartcompanion3.history.MessageDatabase
+import fr.isen.dasilva.isensmartcompanion3.agenda.AgendaScreen
+
 
 data class TabBarItem(
     val title: String,
@@ -79,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     ){
                         composable(homeTab.title){ HomeScreen() }
                         composable(eventsTab.title){ EventScreen() }
-                        composable(agendaTab.title){ Text(agendaTab.title) }
+                        composable(agendaTab.title){ AgendaLauncherView() }
                         composable(moreTab.title){ MoreView() }
                     }
                 }
@@ -229,3 +232,39 @@ fun MoreView() {
     }
 }
 
+@Composable
+fun AgendaScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text("Mon Agenda", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Exemple simple d’un calendrier de mois (à personnaliser)
+        Text("📅 Affichage du calendrier mensuel ici")
+    }
+}
+
+@Composable
+fun AgendaLauncherView() {
+    val context = LocalContext.current
+
+    // Lancer l'activité dès que la composable est visible
+    LaunchedEffect(Unit) {
+        val intent = Intent(context, fr.isen.dasilva.isensmartcompanion3.agenda.AgendaActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    // Optionnel : écran temporaire ou vide
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Ouverture de l'agenda...")
+    }
+}

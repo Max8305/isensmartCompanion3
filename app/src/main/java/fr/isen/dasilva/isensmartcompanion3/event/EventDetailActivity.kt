@@ -1,4 +1,4 @@
-package fr.isen.dasilva.isensmartcompanion3
+package fr.isen.dasilva.isensmartcompanion3.event
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

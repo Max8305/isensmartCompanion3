@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import fr.isen.dasilva.isensmartcompanion3.EventDetailActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.items
