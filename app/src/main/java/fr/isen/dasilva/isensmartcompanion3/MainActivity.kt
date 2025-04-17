@@ -41,6 +41,7 @@ import fr.isen.dasilva.isensmartcompanion3.history.HistoryViewModel
 import fr.isen.dasilva.isensmartcompanion3.history.HistoryViewModelFactory
 import fr.isen.dasilva.isensmartcompanion3.history.MessageDatabase
 import fr.isen.dasilva.isensmartcompanion3.agenda.AgendaScreen
+import fr.isen.dasilva.isensmartcompanion3.event.EventDetailScreen
 
 
 data class TabBarItem(

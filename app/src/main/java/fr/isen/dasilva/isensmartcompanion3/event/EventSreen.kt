@@ -1,9 +1,16 @@
 package fr.isen.dasilva.isensmartcompanion3.event
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
@@ -24,6 +31,9 @@ import retrofit2.Response
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
 
 @Composable
 fun EventScreen() {
@@ -31,6 +41,7 @@ fun EventScreen() {
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val context = LocalContext.current
+    val click = remember { mutableStateOf(false) }
 
     // Charger les événements au démarrage
     LaunchedEffect(Unit) {
@@ -50,35 +61,65 @@ fun EventScreen() {
 
     // Affichage de l'indicateur de chargement ou des événements
     if (isLoading) {
-        CircularProgressIndicator()
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
     } else {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             items(events) { event ->
                 EventItem(event = event, onClick = {
                     val intent = Intent(context, EventDetailActivity::class.java).apply {
+                        putExtra("eventId", event.id)
                         putExtra("title", event.title)
                         putExtra("date", event.date)
                         putExtra("description", event.description)
                     }
                     context.startActivity(intent)
-                })
+                }
+
+                )
             }
+
         }
     }
+
 }
 
+
+
 @Composable
-fun EventItem(event: Event, onClick: () -> Unit) {
+fun EventItem(event: Event,onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = MaterialTheme.shapes.medium
     ) {
+
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = event.title, style = MaterialTheme.typography.headlineMedium)
-            Text(text = event.date, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = event.date,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
+
 }
