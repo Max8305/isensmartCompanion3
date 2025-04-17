@@ -1,6 +1,7 @@
 package fr.isen.dasilva.isensmartcompanion3.event
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,53 +21,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
-import androidx.navigation.NavHost
-import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.isen.dasilva.isensmartcompanion3.event.EventViewModel
+import fr.isen.dasilva.isensmartcompanion3.event.EventViewModelFactory
 
 @Composable
 fun EventScreen() {
-
-    var events by remember { mutableStateOf<List<Event>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
+    val TAG = "EventScreen"
     val context = LocalContext.current
+    val viewModel: EventViewModel = viewModel(factory = EventViewModelFactory(context.applicationContext as android.app.Application))
+    val events by viewModel.events.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    // Charger les événements au démarrage
     LaunchedEffect(Unit) {
-        RetrofitClient.instance.getEvents().enqueue(object : Callback<List<Event>> {
-            override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
-                if (response.isSuccessful) {
-                    events = response.body() ?: emptyList()
-                }
-                isLoading = false
-            }
-
-            override fun onFailure(call: Call<List<Event>>, t: Throwable) {
-                isLoading = false
-            }
-        })
+        Log.d(TAG, "EventScreen: Lancement de fetchAndSaveEvents")
+        viewModel.fetchAndSaveEvents()
     }
 
-    // Affichage de l'indicateur de chargement ou des événements
     if (isLoading) {
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }
     } else {
+        Log.d(TAG, "EventScreen: Affichage de ${events.size} événements")
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,51 +61,51 @@ fun EventScreen() {
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(events) { event ->
-                EventItem(event = event, onClick = {
-                    val intent = Intent(context, EventDetailActivity::class.java).apply {
-                        putExtra("eventId", event.id)
-                        putExtra("title", event.title)
-                        putExtra("date", event.date)
-                        putExtra("description", event.description)
+            items(events) { eventEntity ->
+                EventItem(
+                    event = eventEntity,
+                    onClick = {
+                        val intent = Intent(context, EventDetailActivity::class.java).apply {
+                            putExtra("eventId", eventEntity.id.toString())
+                            putExtra("title", eventEntity.title)
+                            putExtra("date", eventEntity.date)
+                            putExtra("description", eventEntity.description)
+                        }
+                        context.startActivity(intent)
                     }
-                    context.startActivity(intent)
-                }
-
                 )
             }
-
         }
     }
-
 }
 
-
-
 @Composable
-fun EventItem(event: Event,onClick: () -> Unit) {
+fun EventItem(event: EventEntity, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = MaterialTheme.shapes.medium
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
             Text(
                 text = event.title,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.titleLarge
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = event.date,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = event.description,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
-
 }

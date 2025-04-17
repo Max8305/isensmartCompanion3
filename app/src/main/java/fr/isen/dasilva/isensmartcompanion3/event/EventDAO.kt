@@ -13,6 +13,9 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE date = :date")
     suspend fun getEventsByDate(date: String): List<EventEntity>
 
+    @Query("SELECT * FROM events WHERE title = :title AND date = :date")
+    suspend fun getEventsByTitleAndDate(title: String, date: String): List<EventEntity>
+
     @Delete
     suspend fun deleteEvent(event: EventEntity)
 }
