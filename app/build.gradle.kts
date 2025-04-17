@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "fr.isen.dasilva.isensmartcompanion3"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -80,5 +80,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     implementation ("com.kizitonwose.calendar:compose:2.3.0")
+
+    //implementation("androidx.compose.foundation:foundation:1.4.3")
+    //implementation ("com.google.accompanist:accompanist-pager:<version>")
 
 }
