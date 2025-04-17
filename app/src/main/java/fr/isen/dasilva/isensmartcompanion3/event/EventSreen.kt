@@ -41,7 +41,6 @@ fun EventScreen() {
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val context = LocalContext.current
-    val click = remember { mutableStateOf(false) }
 
     // Charger les événements au démarrage
     LaunchedEffect(Unit) {

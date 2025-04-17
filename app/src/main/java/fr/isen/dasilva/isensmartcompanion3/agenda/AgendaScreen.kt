@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import fr.isen.dasilva.isensmartcompanion3.event.Event
 import fr.isen.dasilva.isensmartcompanion3.event.RetrofitClient
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,8 +26,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -64,6 +62,18 @@ fun CalendarMonthView(yearMonth: YearMonth, context: Context) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
 
+    val daysWithEvents = remember(events) {
+        events.mapNotNull { event ->
+            try {
+                val eventDate = LocalDate.parse(event.date)
+                if (eventDate.month == yearMonth.month && eventDate.year == yearMonth.year) {
+                    eventDate.dayOfMonth
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+        }.toSet()
+    }
     // Récupération des événements
     LaunchedEffect(selectedDate) {
         selectedDate?.let {
@@ -126,7 +136,11 @@ fun CalendarMonthView(yearMonth: YearMonth, context: Context) {
 
                             Text(
                                 text = day,
-                                color = if (isSelected) Color.Blue else Color.Black
+                                color = when {
+                                    isSelected -> Color.Blue
+                                    day.toIntOrNull() in daysWithEvents -> Color(0xFF2E7D32) // Vert foncé pour les jours avec événement
+                                    else -> Color.Black
+                                }
                             )
                         }
                     }
@@ -152,11 +166,31 @@ fun CalendarMonthView(yearMonth: YearMonth, context: Context) {
 }
 
 // Fonction de récupération des événements (non composable)
-fun fetchEvents(context: Context, date: LocalDate, onEventsFetched: (List<Event>) -> Unit) {
+/*fun fetchEvents(context: Context, date: LocalDate, onEventsFetched: (List<Event>) -> Unit) {
     RetrofitClient.instance.getEventsForDate(date.toString()).enqueue(object : Callback<List<Event>> {
         override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
             if (response.isSuccessful) {
                 onEventsFetched(response.body() ?: emptyList())
+            } else {
+                Toast.makeText(context, "Erreur lors de la récupération des événements", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onFailure(call: Call<List<Event>>, t: Throwable) {
+            Toast.makeText(context, "Erreur de connexion", Toast.LENGTH_SHORT).show()
+        }
+    })
+}*/
+fun fetchEvents(context: Context, date: LocalDate, onEventsFetched: (List<Event>) -> Unit) {
+    RetrofitClient.instance.getEvents().enqueue(object : Callback<List<Event>> {
+        override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
+            if (response.isSuccessful) {
+                val allEvents = response.body() ?: emptyList()
+                val filteredEvents = allEvents.filter {
+                    // Vérifie si le champ date correspond à la date sélectionnée
+                    it.date == date.toString() // date doit être au format "yyyy-MM-dd"
+                }
+                onEventsFetched(filteredEvents)
             } else {
                 Toast.makeText(context, "Erreur lors de la récupération des événements", Toast.LENGTH_SHORT).show()
             }

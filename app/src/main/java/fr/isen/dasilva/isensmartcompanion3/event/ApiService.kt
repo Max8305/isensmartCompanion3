@@ -11,4 +11,5 @@ interface ApiService {
     // Cette méthode permet de récupérer des événements filtrés par date
     @GET("events.json")
     fun getEventsForDate(@Query("date") date: String): Call<List<Event>>
+
 }
