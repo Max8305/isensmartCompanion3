@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import fr.isen.dasilva.isensmartcompanion3.event.EventDao
+import fr.isen.dasilva.isensmartcompanion3.event.EventEntity
 
-@Database(entities = [Message::class], version = 1)
+@Database(entities = [Message::class, EventEntity::class], version = 1, exportSchema = false)
 abstract class MessageDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
+    abstract fun eventDao(): EventDao
 
     companion object {
         @Volatile private var INSTANCE: MessageDatabase? = null
@@ -18,7 +21,9 @@ abstract class MessageDatabase : RoomDatabase() {
                     context.applicationContext,
                     MessageDatabase::class.java,
                     "chat_history_db"
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigration()
+                    .build().also { INSTANCE = it }
             }
         }
     }
